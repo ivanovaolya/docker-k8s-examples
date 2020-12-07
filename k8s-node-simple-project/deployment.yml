@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: k8s-simple-app
+
+spec: 
+  replicas: 2
+  selector: 
+    matchLabels:
+      app: k8s-simple-app
+  template: 
+    metadata:
+      labels: 
+        app: k8s-simple-app
+    spec:
+      containers:
+        - name: k8s-simple-node
+          image: olyaaivanova/k8s-simple-app:v1
+          livenessProbe:
+            httpGet: 
+              path: /
+              port: 8080
+            periodSeconds: 10
+            initialDelaySeconds: 5
