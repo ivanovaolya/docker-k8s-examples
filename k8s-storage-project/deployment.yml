@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: story-service
+spec:
+  selector:
+    app: story
+  ports:
+    - protocol: 'TCP'
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: story-deployment
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: story
+  template:
+    metadata:
+      labels:
+        app: story
+    spec: 
+      containers:
+        - name: story
+          image: olyaaivanova/k8s-simple-app:stories
+          imagePullPolicy: Always
+          env:
+            - name: STORY_FOLDER
+              # value: 'story'
+              valueFrom:
+                configMapKeyRef: 
+                  name: env-config
+                  key: folder
+          volumeMounts:
+            - mountPath: /app/story
+              name: story-volume
+      volumes:
+        - name: story-volume
+          # emptyDir: {} # great for 1 replica
+
+          # hostPath:  
+            # path: /data
+            # type: DirectoryOrCreate
+
+          persistentVolumeClaim: 
+            claimName: host-pvc
+
